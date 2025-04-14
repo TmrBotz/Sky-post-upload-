@@ -102,7 +102,7 @@ bot.on('callback_query', (query) => {
       message_id: query.message.message_id
     });
 
-    const caption = `*${state.name}*\n\nLanguage: ${state.language}\nQuality: ${state.quality}`;
+    const caption = `🔰Nᴀᴍᴇ: <b>${state.name}</b>\n\nLanguage: ${state.language}\nQuality: ${state.quality}`;
 
     // Send to user (admin)
     bot.sendPhoto(chatId, state.poster, {
