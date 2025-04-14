@@ -1,34 +1,49 @@
 const TelegramBot = require('node-telegram-bot-api');
 
-// Add your token here
+// Add your bot token here
 const token = '7861502352:AAHnJW2xDIZ6DL1khVo1Hw4mXvNYG5pa4pM';
 
-const bot = new TelegramBot(token, { polling: true });
+// Add your channel username or ID (with @ or -100 prefix)
+const CHANNEL_ID = '-1001991464977'; // Or '-1001234567890'
 
+// List of allowed admin user IDs
+const ADMINS = [6987799874]; // Replace with your Telegram user IDs
+
+const bot = new TelegramBot(token, { polling: true });
 const userState = {};
 
-// Start and Help
+// Start command
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Welcome! Use /create to generate a movie post.');
 });
 
+// Help command
 bot.onText(/\/help/, (msg) => {
   bot.sendMessage(msg.chat.id, 'Commands:\n/create - Step-by-step movie post creation');
 });
 
-// /create Command
+// /create command (admin only)
 bot.onText(/\/create/, (msg) => {
   const chatId = msg.chat.id;
+  const userId = msg.from.id;
+
+  if (!ADMINS.includes(userId)) {
+    return bot.sendMessage(chatId, 'Access Denied: You’re not authorized to use this command.');
+  }
+
   userState[chatId] = { step: 'awaitingPoster' };
   bot.sendMessage(chatId, 'Please send the **poster image link**.');
 });
 
-// Main message handler
+// Handle messages
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
+  const userId = msg.from.id;
   const text = msg.text;
 
   if (!userState[chatId] || text.startsWith('/')) return;
+  if (!ADMINS.includes(userId)) return;
+
   const state = userState[chatId];
 
   if (state.step === 'awaitingPoster') {
@@ -49,14 +64,18 @@ bot.on('message', (msg) => {
   }
 });
 
-// Callback Query handler for buttons
+// Handle button callbacks
 bot.on('callback_query', (query) => {
   const chatId = query.message.chat.id;
-  const state = userState[chatId];
-
-  if (!state) return;
-
+  const userId = query.from.id;
   const data = query.data;
+
+  if (!ADMINS.includes(userId)) {
+    return bot.answerCallbackQuery(query.id, { text: 'Access Denied', show_alert: true });
+  }
+
+  const state = userState[chatId];
+  if (!state) return;
 
   if (data.startsWith('lang_')) {
     state.language = data.replace('lang_', '');
@@ -75,9 +94,7 @@ bot.on('callback_query', (query) => {
         ]
       }
     });
-  }
-
-  else if (data.startsWith('quality_')) {
+  } else if (data.startsWith('quality_')) {
     state.quality = data.replace('quality_', '');
 
     bot.editMessageText(`Quality selected: ${state.quality}`, {
@@ -85,10 +102,16 @@ bot.on('callback_query', (query) => {
       message_id: query.message.message_id
     });
 
-    // Final message with poster and caption
     const caption = `*${state.name}*\n\nLanguage: ${state.language}\nQuality: ${state.quality}`;
 
+    // Send to user (admin)
     bot.sendPhoto(chatId, state.poster, {
+      caption,
+      parse_mode: 'Markdown'
+    });
+
+    // Send to channel
+    bot.sendPhoto(CHANNEL_ID, state.poster, {
       caption,
       parse_mode: 'Markdown'
     });
