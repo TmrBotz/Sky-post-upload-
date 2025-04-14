@@ -102,18 +102,18 @@ bot.on('callback_query', (query) => {
       message_id: query.message.message_id
     });
 
-    const caption = `🔰Nᴀᴍᴇ: <b>${state.name}</b>\n\nLanguage: ${state.language}\nQuality: ${state.quality}`;
+    const caption = `<b><a href="t.me/Sky_Hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ: ${state.language}</b>\n<b>♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>`;
 
     // Send to user (admin)
     bot.sendPhoto(chatId, state.poster, {
       caption,
-      parse_mode: 'Markdown'
+      parse_mode: 'HTML'
     });
 
     // Send to channel
     bot.sendPhoto(CHANNEL_ID, state.poster, {
       caption,
-      parse_mode: 'Markdown'
+      parse_mode: 'HTML'
     });
 
     delete userState[chatId];
