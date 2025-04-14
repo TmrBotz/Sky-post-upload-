@@ -102,7 +102,7 @@ bot.on('callback_query', (query) => {
       message_id: query.message.message_id
     });
 
-    const caption = `<b><a href="t.me/Sky_Hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a></b>\n\n<b>🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ: ${state.language}</b>\n<b>♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>`;
+    const caption = `<b><a href="https://t.me/Sky_Hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a></b>\n\n<b>🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ:</b> ${state.language}\n<b>♻️Qᴜᴀʟɪᴛʏ:</b> ${state.quality}`;
 
     // Send to user (admin)
     bot.sendPhoto(chatId, state.poster, {
