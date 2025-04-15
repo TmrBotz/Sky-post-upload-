@@ -182,22 +182,26 @@ function sendFinalPost(chatId) {
 ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const inlineKeyboard = state.buttons.length
-    ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }], [{ text: "Join Channel", url: "https://t.me/Sky_Hub4u" }])
+    ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }])
     : undefined;
 
   // Send to user
   bot.sendPhoto(chatId, state.poster, {
     caption,
     parse_mode: 'HTML',
-    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
-  });
+    reply_markup: inlineKeyboard
+    ? { inline_keyboard: [...inlineKeyboard, [{ text: 'New Button', url: 'https://example.com' }]] }
+    : undefined
+});
 
   // Send to channel
   bot.sendPhoto(CHANNEL_ID, state.poster, {
     caption,
     parse_mode: 'HTML',
-    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
-  });
+    reply_markup: inlineKeyboard
+    ? { inline_keyboard: [...inlineKeyboard, [{ text: 'New Button', url: 'https://example.com' }]] }
+    : undefined
+});
 
   delete userState[chatId];
 }
