@@ -48,8 +48,10 @@ bot.on('message', (msg) => {
         parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: [
-            [{ text: 'Hindi', callback_data: 'lang_Hindi' }, { text: 'English', callback_data: 'lang_English' }],
-            [{ text: 'Telugu', callback_data: 'lang_Telugu' }, { text: 'Tamil', callback_data: 'lang_Tamil' }]
+            [{ text: 'Hindi', callback_data: 'lang_Hindi' }, { text: 'Dual Audio', callback_data: 'lang_Dual Audio' }, { text: 'English', callback_data: 'lang_English' }],
+            [{ text: 'Telugu', callback_data: 'lang_Telugu' }, { text: 'Hindi+Telugu', callback_data: 'lang_Hindi+Telugu' }, { text: 'Tamil', callback_data: 'lang_Tamil' }],
+            [{ text: 'Bhojpuri', callback_data: 'lang_Bhojpuri' }, { text: 'Hindi+Tamil', callback_data: 'lang_Hindi+Tamil' }, { text: 'Gujarati', callback_data: 'lang_Gujarati' }],
+            [{ text: 'Hindi+English', callback_data: 'lang_Hindi+English' }, { text: 'Malayalam', callback_data: 'lang_Malayalam' }, { text: 'Punjabi', callback_data: 'lang_Punjabi' }]
           ]
         }
       });
@@ -99,8 +101,9 @@ bot.on('callback_query', (query) => {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: 'WEB-DL', callback_data: 'quality_WEBDL' }, { text: 'HDRip', callback_data: 'quality_HDRip' }],
-          [{ text: 'HDTS', callback_data: 'quality_HDTS' }]
+          [{ text: 'WEB-DL', callback_data: 'quality_WEB-DL' }, { text: 'PRE-HD', callback_data: 'quality_PRE-HD' }, { text: 'HDRip', callback_data: 'quality_HDRip' }],
+          [{ text: 'HDTS', callback_data: 'quality_HDTS' }, { text: 'HDTC', callback_data: 'quality_HDTC' }, { text: 'All Quality', callback_data: 'quality_1080p, 720p, 480p' }],
+          [{ text: 'BluRay', callback_data: 'quality_BluRay' }, { text: 'WebRip', callback_data: 'quality_WebRip' }, { text: 'CAMRip', callback_data: 'quality_1080p, 720p, 480p' }]
         ]
       }
     });
@@ -157,7 +160,8 @@ function sendFinalPost(chatId) {
   const state = userState[chatId];
   if (!state) return;
 
-  const caption = `<b>${state.name}</b>\n\nLanguage: <i>${state.language}</i>\nQuality: <u>${state.quality}</u>\n${state.type}`;
+  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
+ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const inlineKeyboard = state.buttons.length
     ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }])
