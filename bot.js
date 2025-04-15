@@ -1,13 +1,17 @@
 const TelegramBot = require('node-telegram-bot-api');
+const express = require('express');
+const app = express();
 
-const token = '7861502352:AAHnJW2xDIZ6DL1khVo1Hw4mXvNYG5pa4pM';
-const CHANNEL_ID = '-1001991464977'; // Replace with your channel
-const ADMINS = [6987799874]; // Replace with actual admin Telegram user IDs
+// === CONFIGURATION ===
+const token = '7861502352:AAHnJW2xDIZ6DL1khVo1Hw4mXvNYG5pa4pM'; // Replace with your bot token
+const CHANNEL_ID = '-1001991464977'; // Replace with your channel username (or use numeric ID)
+const ADMINS = [6987799874]; // Replace with your Telegram user IDs
 
+// === BOT SETUP ===
 const bot = new TelegramBot(token, { polling: true });
 const userState = {};
 
-// /create command
+// === /CREATE COMMAND ===
 bot.onText(/\/create/, (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -20,7 +24,7 @@ bot.onText(/\/create/, (msg) => {
   bot.sendMessage(chatId, 'Send <b>poster image link</b>:', { parse_mode: 'HTML' });
 });
 
-// Handle user input
+// === USER MESSAGES HANDLER ===
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -66,7 +70,7 @@ bot.on('message', (msg) => {
         reply_markup: {
           inline_keyboard: [
             [{ text: '➕ Add Another', callback_data: 'add_another_button' }],
-            [{ text: 'Done ✅', callback_data: 'finish_post' }]
+            [{ text: '⏭️ Skip', callback_data: 'finish_post' }]
           ]
         }
       });
@@ -74,7 +78,7 @@ bot.on('message', (msg) => {
   }
 });
 
-// Callback Query Handler
+// === CALLBACK QUERIES ===
 bot.on('callback_query', (query) => {
   const chatId = query.message.chat.id;
   const userId = query.from.id;
@@ -100,6 +104,7 @@ bot.on('callback_query', (query) => {
         ]
       }
     });
+
   } else if (data.startsWith('quality_')) {
     state.quality = data.replace('quality_', '');
     state.step = 'type';
@@ -118,6 +123,7 @@ bot.on('callback_query', (query) => {
         ]
       }
     });
+
   } else if (data.startsWith('type_')) {
     state.type = `#${data.replace('type_', '')}`;
     state.step = 'button_text';
@@ -134,9 +140,11 @@ bot.on('callback_query', (query) => {
         ]
       }
     });
+
   } else if (data === 'add_another_button') {
     state.step = 'button_text';
     bot.sendMessage(chatId, 'Send next <b>button text</b>:', { parse_mode: 'HTML' });
+
   } else if (data === 'finish_post') {
     sendFinalPost(chatId);
   }
@@ -144,24 +152,25 @@ bot.on('callback_query', (query) => {
   bot.answerCallbackQuery(query.id);
 });
 
-// Final post function
+// === FINAL POST FUNCTION ===
 function sendFinalPost(chatId) {
   const state = userState[chatId];
   if (!state) return;
 
-  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
-ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
+  const caption = `<b>${state.name}</b>\n\nLanguage: <i>${state.language}</i>\nQuality: <u>${state.quality}</u>\n${state.type}`;
 
   const inlineKeyboard = state.buttons.length
     ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }])
     : undefined;
 
+  // Send to user
   bot.sendPhoto(chatId, state.poster, {
     caption,
     parse_mode: 'HTML',
     reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
   });
 
+  // Send to channel
   bot.sendPhoto(CHANNEL_ID, state.poster, {
     caption,
     parse_mode: 'HTML',
@@ -170,3 +179,8 @@ function sendFinalPost(chatId) {
 
   delete userState[chatId];
 }
+
+// === DUMMY SERVER TO FIX PORT ISSUE ===
+const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('Bot is running'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
