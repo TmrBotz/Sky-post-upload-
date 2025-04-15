@@ -66,7 +66,7 @@ bot.on('message', (msg) => {
         reply_markup: {
           inline_keyboard: [
             [{ text: '➕ Add Another', callback_data: 'add_another_button' }],
-            [{ text: '⏭️ Skip', callback_data: 'finish_post' }]
+            [{ text: 'Done ✅', callback_data: 'finish_post' }]
           ]
         }
       });
@@ -149,7 +149,8 @@ function sendFinalPost(chatId) {
   const state = userState[chatId];
   if (!state) return;
 
-  const caption = `<b>${state.name}</b>\n\nLanguage: <i>${state.language}</i>\nQuality: <u>${state.quality}</u>\n${state.type}`;
+  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
+ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const inlineKeyboard = state.buttons.length
     ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }])
