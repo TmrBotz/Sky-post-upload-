@@ -182,8 +182,7 @@ function sendFinalPost(chatId) {
 ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const inlineKeyboard = state.buttons.length
-    ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }]),
-    [{ text: "Join Channel", url: "https://t.me/Sky_Hub4u" }]
+    ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }], [{ text: "Join Channel", url: "https://t.me/Sky_Hub4u" }])
     : undefined;
 
   // Send to user
