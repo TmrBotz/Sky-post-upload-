@@ -3,8 +3,8 @@ const express = require('express');
 const app = express();
 
 // === CONFIGURATION ===
-const token = '7861502352:AAHnJW2xDIZ6DL1khVo1Hw4mXvNYG5pa4pM'; // Replace with your bot token
-const CHANNEL_ID = '-1001991464977'; // Replace with your channel username (or use numeric ID)
+const token = '7547800997:AAGjBsVNm1BldEMDVQpZcz5bTrellDNUuQY'; // Replace with your bot token
+const CHANNEL_ID = '-1002116377056'; // Replace with your channel username (or use numeric ID)
 const ADMINS = [6987799874]; // Replace with your Telegram user IDs
 
 // === BOT SETUP ===
@@ -13,7 +13,7 @@ const userState = {};
 
 // === /CREATE COMMAND ===
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, `<b>Welcome!</b>\nUse <code>/create</code> to post a movie (admin only).`, {
+  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} This Is A SkyHub4u Official Movie Notification Post Creater.</b>`, {
     parse_mode: "HTML"
   });
 });
