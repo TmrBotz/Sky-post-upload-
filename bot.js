@@ -4,14 +4,14 @@ const app = express();
 
 // === CONFIGURATION ===
 const token = '7547800997:AAGjBsVNm1BldEMDVQpZcz5bTrellDNUuQY'; // Replace with your bot token
-const CHANNEL_ID = '-1002116377056'; // Replace with your channel username (or use numeric ID)
-const ADMINS = [6987799874]; // Replace with your Telegram user IDs
+const CHANNEL_ID = '-1002116377056'; // Replace with your channel ID
+const ADMINS = [6987799874]; // Replace with admin Telegram user IDs
 
 // === BOT SETUP ===
 const bot = new TelegramBot(token, { polling: true });
 const userState = {};
 
-// === /CREATE COMMAND ===
+// === /start ===
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} \n\nThis Is A SkyHub4u Official Movie Notification Post Creater.</b>`, {
     parse_mode: "HTML",
@@ -33,8 +33,7 @@ bot.onText(/\/create/, (msg) => {
   if (!ADMINS.includes(userId)) return bot.sendMessage(chatId, 'Access Denied.');
 
   userState[chatId] = {
-    step: 'poster',
-    buttons: []
+    step: 'poster'
   };
   bot.sendMessage(chatId, 'Send <b>poster image link</b>:', { parse_mode: 'HTML' });
 });
@@ -67,27 +66,6 @@ bot.on('message', (msg) => {
             [{ text: 'Telugu', callback_data: 'lang_Telugu' }, { text: 'Hindi+Telugu', callback_data: 'lang_Hindi+Telugu' }, { text: 'Tamil', callback_data: 'lang_Tamil' }],
             [{ text: 'Bhojpuri', callback_data: 'lang_Bhojpuri' }, { text: 'Hindi+Tamil', callback_data: 'lang_Hindi+Tamil' }, { text: 'Gujarati', callback_data: 'lang_Gujarati' }],
             [{ text: 'Hindi+English', callback_data: 'lang_Hindi+English' }, { text: 'Malayalam', callback_data: 'lang_Malayalam' }, { text: 'Punjabi', callback_data: 'lang_Punjabi' }]
-          ]
-        }
-      });
-      break;
-
-    case 'button_text':
-      state.currentButton = { text };
-      state.step = 'button_link';
-      bot.sendMessage(chatId, `Send link for <b>${text}</b> button:`, { parse_mode: 'HTML' });
-      break;
-
-    case 'button_link':
-      state.currentButton.link = text;
-      state.buttons.push(state.currentButton);
-      state.currentButton = null;
-
-      bot.sendMessage(chatId, 'Choose an option:', {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '➕ Add Another', callback_data: 'add_another_button' }],
-            [{ text: 'Done ✅', callback_data: 'finish_post' }]
           ]
         }
       });
@@ -144,26 +122,11 @@ bot.on('callback_query', (query) => {
 
   } else if (data.startsWith('type_')) {
     state.type = `#${data.replace('type_', '')}`;
-    state.step = 'button_text';
     bot.editMessageText(`Type: ${state.type}`, {
       chat_id: chatId,
       message_id: query.message.message_id
     });
 
-    bot.sendMessage(chatId, 'Send download <b>button text</b> or click <i>Skip</i> to post without buttons.', {
-      parse_mode: 'HTML',
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: '⏭️ Skip', callback_data: 'finish_post' }]
-        ]
-      }
-    });
-
-  } else if (data === 'add_another_button') {
-    state.step = 'button_text';
-    bot.sendMessage(chatId, 'Send next <b>button text</b>:', { parse_mode: 'HTML' });
-
-  } else if (data === 'finish_post') {
     sendFinalPost(chatId);
   }
 
@@ -178,28 +141,23 @@ function sendFinalPost(chatId) {
   const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code>\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
 ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
-  const inlineKeyboard = state.buttons.length
-    ? state.buttons.map(btn => [{ text: btn.text, url: btn.link }])
-    : undefined;
-
-  // Send to user
-  bot.sendPhoto(chatId, state.poster, {
-    caption,
+  const fixedButton = {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Join SkyHub4u", url: "https://t.me/Sky_hub4u" }]
+      ]
+    },
     parse_mode: 'HTML',
-    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
-  });
+    caption
+  };
 
-  // Send to channel
-  bot.sendPhoto(CHANNEL_ID, state.poster, {
-    caption,
-    parse_mode: 'HTML',
-    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
-  });
+  bot.sendPhoto(chatId, state.poster, fixedButton);
+  bot.sendPhoto(CHANNEL_ID, state.poster, fixedButton);
 
   delete userState[chatId];
 }
 
-// === DUMMY SERVER TO FIX PORT ISSUE ===
+// === DUMMY SERVER TO KEEP BOT ALIVE ===
 const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot is running'));
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
