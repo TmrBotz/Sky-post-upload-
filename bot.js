@@ -13,16 +13,13 @@ const userState = {};
 
 // === /CREATE COMMAND ===
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} This Is A SkyHub4u Official Movie Notification Post Creater.</b>`, {
+  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} \n\nThis Is A SkyHub4u Official Movie Notification Post Creater.</b>`, {
     parse_mode: "HTML",
     reply_markup: {
       inline_keyboard: [
         [
           { text: "Sky Hub4u", url: `https://t.me/Sky_Hub4u` },
           { text: "Admin", url: `https://t.me/Tmr_Developer` }
-        ],
-        [
-          { text: "Create", callback_data: "create" }
         ]
       ]
     }
@@ -189,19 +186,15 @@ function sendFinalPost(chatId) {
   bot.sendPhoto(chatId, state.poster, {
     caption,
     parse_mode: 'HTML',
-    reply_markup: inlineKeyboard
-    ? { inline_keyboard: [...inlineKeyboard, [{ text: 'New Button', url: 'https://example.com' }]] }
-    : undefined
-});
+    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
+  });
 
   // Send to channel
   bot.sendPhoto(CHANNEL_ID, state.poster, {
     caption,
     parse_mode: 'HTML',
-    reply_markup: inlineKeyboard
-    ? { inline_keyboard: [...inlineKeyboard, [{ text: 'New Button', url: 'https://example.com' }]] }
-    : undefined
-});
+    reply_markup: inlineKeyboard ? { inline_keyboard: inlineKeyboard } : undefined
+  });
 
   delete userState[chatId];
 }
