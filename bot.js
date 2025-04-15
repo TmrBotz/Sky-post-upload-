@@ -12,6 +12,13 @@ const bot = new TelegramBot(token, { polling: true });
 const userState = {};
 
 // === /CREATE COMMAND ===
+bot.onText(/\/start/, (msg) => {
+  bot.sendMessage(msg.chat.id, `<b>Welcome!</b>\nUse <code>/create</code> to post a movie (admin only).`, {
+    parse_mode: "HTML"
+  });
+});
+
+// === /CREATE COMMAND ===
 bot.onText(/\/create/, (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -72,7 +79,7 @@ bot.on('message', (msg) => {
         reply_markup: {
           inline_keyboard: [
             [{ text: '➕ Add Another', callback_data: 'add_another_button' }],
-            [{ text: '⏭️ Skip', callback_data: 'finish_post' }]
+            [{ text: 'Done ✅', callback_data: 'finish_post' }]
           ]
         }
       });
@@ -103,7 +110,7 @@ bot.on('callback_query', (query) => {
         inline_keyboard: [
           [{ text: 'WEB-DL', callback_data: 'quality_WEB-DL' }, { text: 'PRE-HD', callback_data: 'quality_PRE-HD' }, { text: 'HDRip', callback_data: 'quality_HDRip' }],
           [{ text: 'HDTS', callback_data: 'quality_HDTS' }, { text: 'HDTC', callback_data: 'quality_HDTC' }, { text: 'All Quality', callback_data: 'quality_1080p, 720p, 480p' }],
-          [{ text: 'BluRay', callback_data: 'quality_BluRay' }, { text: 'WebRip', callback_data: 'quality_WebRip' }, { text: 'CAMRip', callback_data: 'quality_1080p, 720p, 480p' }]
+          [{ text: 'BluRay', callback_data: 'quality_BluRay' }, { text: 'WebRip', callback_data: 'quality_WebRip' }, { text: 'CAMRip', callback_data: 'quality_CAMRip' }]
         ]
       }
     });
