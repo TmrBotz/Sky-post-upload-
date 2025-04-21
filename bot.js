@@ -71,6 +71,23 @@ bot.on('message', (msg) => {
         }
       });
       break;
+
+    case 'download_1080p':
+      state.link1080p = text;
+      state.step = 'download_720p';
+      bot.sendMessage(chatId, 'Send 720p download link:');
+      break;
+
+    case 'download_720p':
+      state.link720p = text;
+      state.step = 'download_480p';
+      bot.sendMessage(chatId, 'Send 480p download link:');
+      break;
+
+    case 'download_480p':
+      state.link480p = text;
+      sendFinalPost(chatId);
+      break;
   }
 });
 
@@ -128,7 +145,8 @@ bot.on('callback_query', (query) => {
       message_id: query.message.message_id
     });
 
-    sendFinalPost(chatId);
+    state.step = 'download_1080p';
+    bot.sendMessage(chatId, 'Send 1080p download link:');
   }
 
   bot.answerCallbackQuery(query.id);
@@ -145,7 +163,14 @@ function sendFinalPost(chatId) {
   const fixedButton = {
     reply_markup: {
       inline_keyboard: [
-        [{ text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }]
+        [
+          { text: "1080p", url: state.link1080p },
+          { text: "720p", url: state.link720p },
+          { text: "480p", url: state.link480p }
+        ],
+        [
+          { text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }
+        ]
       ]
     },
     parse_mode: 'HTML',
