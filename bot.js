@@ -1,13 +1,13 @@
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
-const axios = require('axios'); // For fetching TMDb API
+const axios = require('axios');  // For TMDb API
 const app = express();
 
 // === CONFIGURATION ===
 const token = '7591645551:AAHYPYrU4ah5HVdgIJGYUrLxRHjY62R84CY'; // Replace with your bot token
 const CHANNEL_ID = '-1002116377056'; // Replace with your channel ID
 const ADMINS = [6987799874]; // Replace with admin Telegram user IDs
-const TMDB_API_KEY = '4b6e108d2d340e1c4da27a739feaf820'; // Replace with your TMDb API Key
+const TMDB_API_KEY = '4b6e108d2d340e1c4da27a739feaf820';  // Replace with your TMDb API Key
 
 // === BOT SETUP ===
 const bot = new TelegramBot(token, { polling: true });
@@ -15,7 +15,7 @@ const userState = {};
 
 // === /start ===
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} \n\nThis Is A SkyHub4u Official Movie Notification Post Creater.</b>`, {
+  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} \n\nThis Is A SkyHub4u Official Movie Notification Post Creator.</b>`, {
     parse_mode: "HTML",
     reply_markup: {
       inline_keyboard: [
@@ -35,9 +35,9 @@ bot.onText(/\/create/, (msg) => {
   if (!ADMINS.includes(userId)) return bot.sendMessage(chatId, 'Access Denied.');
 
   userState[chatId] = {
-    step: 'name'
+    step: 'movie_name'
   };
-  bot.sendMessage(chatId, 'Send <b>movie name</b>:', { parse_mode: 'HTML' });
+  bot.sendMessage(chatId, 'Send <b>movie name</b> to search from TMDb:', { parse_mode: 'HTML' });
 });
 
 // === USER MESSAGES HANDLER ===
@@ -51,38 +51,38 @@ bot.on('message', async (msg) => {
   if (!ADMINS.includes(userId)) return;
 
   switch (state.step) {
-    case 'name':
-      state.name = text;
-      state.step = 'searchMovie';
-      const movieResults = await searchMovie(state.name);
-      if (movieResults.length > 0) {
-        state.movieId = movieResults[0].id;  // Choose the first result for simplicity
-        state.step = 'posterStyle';
-        bot.sendMessage(chatId, 'Choose <b>poster style</b> (Portrait or Landscape):', {
+    case 'movie_name':
+      state.movie_name = text;
+      state.step = 'fetch_movie';
+      bot.sendMessage(chatId, `Searching for <b>${text}</b> on TMDb...`, { parse_mode: 'HTML' });
+
+      // Fetch movie data from TMDb
+      try {
+        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?query=${text}&api_key=${TMDB_API_KEY}`);
+        const movies = response.data.results;
+
+        if (movies.length === 0) {
+          bot.sendMessage(chatId, `No results found for <b>${text}</b>. Try again with a different name.`, { parse_mode: 'HTML' });
+          delete userState[chatId];
+          return;
+        }
+
+        const movieButtons = movies.map(movie => {
+          return [{ text: movie.title, callback_data: `movie_${movie.id}` }];
+        });
+
+        bot.sendMessage(chatId, 'Please select the movie:', {
           parse_mode: 'HTML',
           reply_markup: {
-            inline_keyboard: [
-              [{ text: 'Portrait', callback_data: 'poster_Portrait' }, { text: 'Landscape', callback_data: 'poster_Landscape' }]
-            ]
+            inline_keyboard: movieButtons
           }
         });
-      } else {
-        bot.sendMessage(chatId, 'No movie found with that name. Please try again.');
+      } catch (error) {
+        bot.sendMessage(chatId, 'Error while fetching movie details. Please try again later.');
       }
       break;
   }
 });
-
-// === SEARCH MOVIE ON TMDB ===
-async function searchMovie(movieName) {
-  try {
-    const response = await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${movieName}`);
-    return response.data.results;
-  } catch (error) {
-    console.error('Error fetching movie:', error);
-    return [];
-  }
-}
 
 // === CALLBACK QUERIES ===
 bot.on('callback_query', async (query) => {
@@ -93,48 +93,94 @@ bot.on('callback_query', async (query) => {
 
   if (!state || !ADMINS.includes(userId)) return;
 
-  if (data.startsWith('poster_')) {
-    const posterStyle = data.replace('poster_', '');
-    state.posterStyle = posterStyle;
-    const posterUrl = await getMoviePoster(state.movieId, posterStyle);
-    state.poster = posterUrl;
-    bot.editMessageText(`Poster Style: ${posterStyle}`, {
+  if (data.startsWith('movie_')) {
+    const movieId = data.replace('movie_', '');
+
+    try {
+      const response = await axios.get(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}`);
+      const movie = response.data;
+
+      state.movie = movie;
+      state.poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+      state.step = 'language';
+      
+      bot.editMessageText(`<b>Selected Movie: ${movie.title}</b>`, {
+        chat_id: chatId,
+        message_id: query.message.message_id
+      });
+
+      bot.sendMessage(chatId, 'Choose <b>language</b>:', {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: 'Hindi', callback_data: 'lang_Hindi' }, { text: 'Dual Audio', callback_data: 'lang_Dual Audio' }, { text: 'English', callback_data: 'lang_English' }],
+            [{ text: 'Telugu', callback_data: 'lang_Telugu' }, { text: 'Hindi+Telugu', callback_data: 'lang_Hindi+Telugu' }, { text: 'Tamil', callback_data: 'lang_Tamil' }],
+            [{ text: 'Bhojpuri', callback_data: 'lang_Bhojpuri' }, { text: 'Hindi+Tamil', callback_data: 'lang_Hindi+Tamil' }, { text: 'Gujarati', callback_data: 'lang_Gujarati' }],
+            [{ text: 'Hindi+English', callback_data: 'lang_Hindi+English' }, { text: 'Malayalam', callback_data: 'lang_Malayalam' }, { text: 'Punjabi', callback_data: 'lang_Punjabi' }],
+            [{ text: 'Bengali', callback_data: 'lang_Bengali' }, { text: 'Marathi', callback_data: 'lang_Marathi' }]
+          ]
+        }
+      });
+    } catch (error) {
+      bot.sendMessage(chatId, 'Error while fetching movie details. Please try again later.');
+    }
+  }
+
+  if (data.startsWith('lang_')) {
+    state.language = data.replace('lang_', '');
+    state.step = 'quality';
+    bot.editMessageText(`Language: ${state.language}`, {
       chat_id: chatId,
       message_id: query.message.message_id
     });
 
-    bot.sendMessage(chatId, 'Choose <b>language</b>:', {
+    bot.sendMessage(chatId, 'Choose <b>quality</b>:', {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: 'Hindi', callback_data: 'lang_Hindi' }, { text: 'Dual Audio', callback_data: 'lang_Dual Audio' }, { text: 'English', callback_data: 'lang_English' }],
-          // Add other languages here
+          [{ text: 'WEB-DL', callback_data: 'quality_WEB-DL' }, { text: 'PRE-HD', callback_data: 'quality_PRE-HD' }, { text: 'HDRip', callback_data: 'quality_HDRip' }],
+          [{ text: 'HDTS', callback_data: 'quality_HDTS' }, { text: 'HDTC', callback_data: 'quality_HDTC' }, { text: 'All Quality', callback_data: 'quality_1080p, 720p, 480p' }],
+          [{ text: 'BluRay', callback_data: 'quality_BluRay' }, { text: 'WebRip', callback_data: 'quality_WebRip' }, { text: 'CAMRip', callback_data: 'quality_CAMRip' }]
         ]
       }
     });
+  } else if (data.startsWith('quality_')) {
+    state.quality = data.replace('quality_', '');
+    state.step = 'type';
+    bot.editMessageText(`Quality: ${state.quality}`, {
+      chat_id: chatId,
+      message_id: query.message.message_id
+    });
+
+    bot.sendMessage(chatId, 'Select <b>type</b>:', {
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '#MOVIE', callback_data: 'type_MOVIE' }, { text: '#SERIES', callback_data: 'type_SERIES' }],
+          [{ text: '#ADULT', callback_data: 'type_ADULT' }, { text: '#ANIMATION', callback_data: 'type_ANIMATION' }],
+          [{ text: '#TV_SHOW', callback_data: 'type_TV_SHOW' }, { text: '#ANIME', callback_data: 'type_ANIME' }]
+        ]
+      }
+    });
+  } else if (data.startsWith('type_')) {
+    state.type = `#${data.replace('type_', '')}`;
+    bot.editMessageText(`Type: ${state.type}`, {
+      chat_id: chatId,
+      message_id: query.message.message_id
+    });
+
+    sendFinalPost(chatId);
   }
 
   bot.answerCallbackQuery(query.id);
 });
-
-// === GET MOVIE POSTER FROM TMDB ===
-async function getMoviePoster(movieId, posterStyle) {
-  try {
-    const response = await axios.get(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}`);
-    const posterPath = posterStyle === 'Landscape' ? response.data.poster_path : response.data.backdrop_path;
-    return `https://image.tmdb.org/t/p/w500${posterPath}`; // Fetch poster URL
-  } catch (error) {
-    console.error('Error fetching poster:', error);
-    return '';
-  }
-}
 
 // === FINAL POST FUNCTION ===
 function sendFinalPost(chatId) {
   const state = userState[chatId];
   if (!state) return;
 
-  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code> ⿻   |\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
+  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code> ⿻|\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
 ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const fixedButton = {
