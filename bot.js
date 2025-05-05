@@ -1,13 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
-const axios = require('axios');  // For TMDb API
 const app = express();
 
 // === CONFIGURATION ===
 const token = '7591645551:AAHYPYrU4ah5HVdgIJGYUrLxRHjY62R84CY'; // Replace with your bot token
 const CHANNEL_ID = '-1002116377056'; // Replace with your channel ID
 const ADMINS = [6987799874]; // Replace with admin Telegram user IDs
-const TMDB_API_KEY = '4b6e108d2d340e1c4da27a739feaf820';  // Replace with your TMDb API Key
 
 // === BOT SETUP ===
 const bot = new TelegramBot(token, { polling: true });
@@ -15,7 +13,7 @@ const userState = {};
 
 // === /start ===
 bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} \n\nThis Is A SkyHub4u Official Movie Notification Post Creator.</b>`, {
+  bot.sendMessage(msg.chat.id, `<b>🖐️ Welcome ${msg.from.first_name} \n\nThis Is A SkyHub4u Official Movie Notification Post Creater.</b>`, {
     parse_mode: "HTML",
     reply_markup: {
       inline_keyboard: [
@@ -35,13 +33,13 @@ bot.onText(/\/create/, (msg) => {
   if (!ADMINS.includes(userId)) return bot.sendMessage(chatId, 'Access Denied.');
 
   userState[chatId] = {
-    step: 'movie_name'
+    step: 'poster'
   };
-  bot.sendMessage(chatId, 'Send <b>movie name</b> to search from TMDb:', { parse_mode: 'HTML' });
+  bot.sendMessage(chatId, 'Send <b>poster image link</b>:', { parse_mode: 'HTML' });
 });
 
 // === USER MESSAGES HANDLER ===
-bot.on('message', async (msg) => {
+bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
   const text = msg.text;
@@ -51,64 +49,15 @@ bot.on('message', async (msg) => {
   if (!ADMINS.includes(userId)) return;
 
   switch (state.step) {
-    case 'movie_name':
-      state.movie_name = text;
-      state.step = 'fetch_movie';
-      bot.sendMessage(chatId, `Searching for <b>${text}</b> on TMDb...`, { parse_mode: 'HTML' });
-
-      // Fetch movie data from TMDb
-      try {
-        const response = await axios.get(`https://api.themoviedb.org/3/search/movie?query=${text}&api_key=${TMDB_API_KEY}`);
-        const movies = response.data.results;
-
-        if (movies.length === 0) {
-          bot.sendMessage(chatId, `No results found for <b>${text}</b>. Try again with a different name.`, { parse_mode: 'HTML' });
-          delete userState[chatId];
-          return;
-        }
-
-        const movieButtons = movies.map(movie => {
-          return [{ text: movie.title, callback_data: `movie_${movie.id}` }];
-        });
-
-        bot.sendMessage(chatId, 'Please select the movie:', {
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: movieButtons
-          }
-        });
-      } catch (error) {
-        bot.sendMessage(chatId, 'Error while fetching movie details. Please try again later.');
-      }
+    case 'poster':
+      state.poster = text;
+      state.step = 'name';
+      bot.sendMessage(chatId, 'Send <b>movie name</b>:', { parse_mode: 'HTML' });
       break;
-  }
-});
 
-// === CALLBACK QUERIES ===
-bot.on('callback_query', async (query) => {
-  const chatId = query.message.chat.id;
-  const userId = query.from.id;
-  const data = query.data;
-  const state = userState[chatId];
-
-  if (!state || !ADMINS.includes(userId)) return;
-
-  if (data.startsWith('movie_')) {
-    const movieId = data.replace('movie_', '');
-
-    try {
-      const response = await axios.get(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}`);
-      const movie = response.data;
-
-      state.movie = movie;
-      state.poster = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+    case 'name':
+      state.name = text;
       state.step = 'language';
-      
-      bot.editMessageText(`<b>Selected Movie: ${movie.title}</b>`, {
-        chat_id: chatId,
-        message_id: query.message.message_id
-      });
-
       bot.sendMessage(chatId, 'Choose <b>language</b>:', {
         parse_mode: 'HTML',
         reply_markup: {
@@ -121,10 +70,18 @@ bot.on('callback_query', async (query) => {
           ]
         }
       });
-    } catch (error) {
-      bot.sendMessage(chatId, 'Error while fetching movie details. Please try again later.');
-    }
+      break;
   }
+});
+
+// === CALLBACK QUERIES ===
+bot.on('callback_query', (query) => {
+  const chatId = query.message.chat.id;
+  const userId = query.from.id;
+  const data = query.data;
+  const state = userState[chatId];
+
+  if (!state || !ADMINS.includes(userId)) return;
 
   if (data.startsWith('lang_')) {
     state.language = data.replace('lang_', '');
@@ -144,6 +101,7 @@ bot.on('callback_query', async (query) => {
         ]
       }
     });
+
   } else if (data.startsWith('quality_')) {
     state.quality = data.replace('quality_', '');
     state.step = 'type';
@@ -162,6 +120,7 @@ bot.on('callback_query', async (query) => {
         ]
       }
     });
+
   } else if (data.startsWith('type_')) {
     state.type = `#${data.replace('type_', '')}`;
     bot.editMessageText(`Type: ${state.type}`, {
