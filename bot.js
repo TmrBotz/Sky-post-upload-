@@ -150,17 +150,17 @@ function sendFinalPost(chatId) {
   const state = userState[chatId];
   if (!state) return;
 
-  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code> ⿻|\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
+  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code> ⿻|\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
 ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const fixedButton = {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "💥 480p 💥", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_480p` },
-          { text: "🎯 720p 🎯", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_720p` }],
+          { text: "💥 480p 💥", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_480p` },
+          { text: "🎯 720p 🎯", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_720p` }],
         [
-          { text: "🍿 1080p 🍿", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_480p` }],
+          { text: "🍿 1080p 🍿", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_480p` }],
         [{ text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }]
       ]
     },
