@@ -58,14 +58,14 @@ bot.on('message', (msg) => {
     case 'name':
       state.name = text;
       state.step = 'imdb';
-      bot.sendMessage(chatId, 'Send <b>IMDb URL</b> (e.g., https://www.imdb.com/title/tt15354916):', { parse_mode: 'HTML' });
+      bot.sendMessage(chatId, 'Send <b>IMDb URL</b> (e.g., https://www.imdb.com/title/tt123456):', { parse_mode: 'HTML' });
       break;
       
     case 'imdb':
       // Extract IMDb ID from URL
       const imdbMatch = text.match(/imdb\.com\/title\/(tt\d+)/);
       if (!imdbMatch) {
-        return bot.sendMessage(chatId, 'Invalid IMDb URL. Please send a valid IMDb URL (e.g., https://www.imdb.com/title/tt15354916):');
+        return bot.sendMessage(chatId, 'Invalid IMDb URL. Please send a valid IMDb URL (e.g., https://www.imdb.com/title/tt123456):');
       }
       state.imdbId = imdbMatch[1].replace('tt', ''); // Remove 'tt' prefix
       state.step = 'language';
@@ -157,10 +157,10 @@ function sendFinalPost(chatId) {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "💥 480p", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_480p` },
-          { text: "720p 🎯", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_720p` },
-          { text: "🍿 1080p 🍿", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_1080p` }
-        ],
+          { text: "💥 480p 💥", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_480p` },
+          { text: "🎯 720p 🎯", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_720p` }],
+        [
+          { text: "🍿 1080p 🍿", url: `https://t.me/MovieFix4uBot?start=file_${state.imdbId}_480p` }],
         [{ text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }]
       ]
     },
