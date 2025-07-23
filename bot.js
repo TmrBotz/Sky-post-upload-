@@ -160,7 +160,7 @@ function sendFinalPost(chatId) {
           { text: "💥 480p 💥", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_480p` },
           { text: "🎯 720p 🎯", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_720p` }],
         [
-          { text: "🍿 1080p 🍿", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_480p` }],
+          { text: "🍿 1080p 🍿", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_1080p` }],
         [{ text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }]
       ]
     },
