@@ -5,7 +5,7 @@ const app = express();
 // === CONFIGURATION ===
 const token = '7591645551:AAHYPYrU4ah5HVdgIJGYUrLxRHjY62R84CY'; // Replace with your bot token
 const CHANNEL_ID = '-1002116377056'; // Replace with your channel ID
-const ADMINS = [6987799874]; // Replace with admin Telegram user IDs
+const ADMINS = [6987799874,1041389723]; // Replace with admin Telegram user IDs
 
 // === BOT SETUP ===
 const bot = new TelegramBot(token, { polling: true });
