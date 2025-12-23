@@ -4,7 +4,7 @@ const app = express();
 
 // === CONFIGURATION ===
 const token = '7591645551:AAHYPYrU4ah5HVdgIJGYUrLxRHjY62R84CY'; // Replace with your bot token
-const CHANNEL_ID = '-1002116377056'; // Replace with your channel ID
+const CHANNEL_ID = '-1002298834485'; // Replace with your channel ID
 const ADMINS = [6987799874,1041389723]; // Replace with admin Telegram user IDs
 
 // === BOT SETUP ===
@@ -18,7 +18,7 @@ bot.onText(/\/start/, (msg) => {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "Sky Hub4u", url: `https://t.me/Sky_Hub4u` },
+          { text: "SkyHub4u", url: `https://t.me/SkyHub4u` },
           { text: "Admin", url: `https://t.me/Tmr_Developer` }
         ]
       ]
@@ -57,17 +57,6 @@ bot.on('message', (msg) => {
 
     case 'name':
       state.name = text;
-      state.step = 'imdb';
-      bot.sendMessage(chatId, 'Send <b>IMDb URL</b> (e.g., https://www.imdb.com/title/tt123456):', { parse_mode: 'HTML' });
-      break;
-      
-    case 'imdb':
-      // Extract IMDb ID from URL
-      const imdbMatch = text.match(/imdb\.com\/title\/(tt\d+)/);
-      if (!imdbMatch) {
-        return bot.sendMessage(chatId, 'Invalid IMDb URL. Please send a valid IMDb URL (e.g., https://www.imdb.com/title/tt123456):');
-      }
-      state.imdbId = imdbMatch[1].replace('tt', ''); // Remove 'tt' prefix
       state.step = 'language';
       bot.sendMessage(chatId, 'Choose <b>language</b>:', {
         parse_mode: 'HTML',
@@ -81,6 +70,23 @@ bot.on('message', (msg) => {
           ]
         }
       });
+      break;
+
+    case 'download_1080p':
+      state.link1080p = text;
+      state.step = 'download_720p';
+      bot.sendMessage(chatId, 'Send 720p download link:');
+      break;
+
+    case 'download_720p':
+      state.link720p = text;
+      state.step = 'download_480p';
+      bot.sendMessage(chatId, 'Send 480p download link:');
+      break;
+
+    case 'download_480p':
+      state.link480p = text;
+      sendFinalPost(chatId);
       break;
   }
 });
@@ -139,7 +145,8 @@ bot.on('callback_query', (query) => {
       message_id: query.message.message_id
     });
 
-    sendFinalPost(chatId);
+    state.step = 'download_1080p';
+    bot.sendMessage(chatId, 'Send 1080p download link:');
   }
 
   bot.answerCallbackQuery(query.id);
@@ -150,18 +157,20 @@ function sendFinalPost(chatId) {
   const state = userState[chatId];
   if (!state) return;
 
-  const caption = `<b><a href="https://t.me/Sky_hub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code> ⿻|\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Sky_hub4u">${state.type}</a></b>\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
+  const caption = `<b><a href="https://t.me/SkyHub4u">#ɴᴇᴡ_ғɪʟᴇ_ᴀᴅᴅᴇᴅ ✅</a>\n\n🔰Nᴀᴍᴇ:</b> <code>${state.name}</code> ⿻   |\n<b>✨Aᴜᴅɪᴏ: ${state.language}\n♻️Qᴜᴀʟɪᴛʏ: ${state.quality}</b>\n<b><a href="https://t.me/Tmr_Botz">${state.type}</a></b>\n\n<b>♡ ㅤ   ❍ㅤ     ⎙      ⌲
 ˡᶦᵏᵉ  ᶜᵒᵐᵐᵉⁿᵗ  ˢᵃᵛᵉ   ˢʰᵃʳᵉ</b>`;
 
   const fixedButton = {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "💥 480p 💥", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_480p` },
-          { text: "🎯 720p 🎯", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_720p` }],
+          { text: "1080p", url: state.link1080p },
+          { text: "720p", url: state.link720p },
+          { text: "480p", url: state.link480p }
+        ],
         [
-          { text: "🍿 1080p 🍿", url: `https://t.me/SkyHub4u_Web_Bot?start=file_${state.imdbId}_1080p` }],
-        [{ text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }]
+          { text: "🔰 𝗠𝗼𝘃𝗶𝗲 𝗦𝗲𝗮𝗿𝗰𝗵 𝗚𝗿𝗼𝘂𝗽 🔰", url: "https://t.me/Sky_Movie_req4u" }
+        ]
       ]
     },
     parse_mode: 'HTML',
